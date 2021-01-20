@@ -2,14 +2,21 @@
 # coding: utf-8
 
 import pandas as pd
+import numpy as np
 
 import time
 
 
 def pd_parse(file_name):
     col_names = ["Cost(Euro/share)", "Profit(% post 2 years)"]
-    data = pd.read_csv(file_name)
+    data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
+    # print(df)
+
+    df["ratio"] = df[col_names[1]] / df[col_names[0]]
+    df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
+
+    df = df.sort_values(by=["ratio", col_names[1], col_names[0]], ascending=False)
     print(df)
 
     costs = [x for x in df[col_names[0]]]
@@ -22,22 +29,41 @@ def search(costs, profits):
 
     start_t = time.time()
 
-    costs = [1, 2, 10]  # TODO tmp
-    profits = [1, 2, 5]
+    # costs = [5, 2, 1]  # TODO tmp
+    # profits = [10, 2, 1]
 
-    # costs = ["A", "B", "C"]
-    depth = 500
-
+    capacity = 500
     selected = set()
     explored = set()
-    recursive_call_3(costs, 0, depth, 0, selected=selected, explored=explored)
+    # recursive_call_3(costs, 0, depth, 0, selected=selected, explored=explored)
+    spend = recursive_call_4(
+        costs, profits, capacity, explored=explored, selected=selected, num_selection=3
+    )
+    if spend == capacity:
+        print("\nMATCH FOUND\n")
+    else:
+        print("\nNO MATCH FOUND\n")
+        return
 
     # for r in explored:
     #    print(f"EXP==>[{r}]")
     # print(len(explored))
 
+    sort_sequences = []
     for r in selected:
-        print(f"SEL==>[{r}]")
+        cost = sum([costs[x] for x in r])
+        profit = sum([profits[x] for x in r])
+        sort_sequences.append((profit, [costs[x] for x in r], cost))
+        print(f"SEL==>[{r}] {cost} {profit}")
+
+    print()
+
+    sort_sequences = sorted(sort_sequences)
+    for r in sort_sequences:
+        print(f"SOR==>{r}")
+
+    best = sort_sequences[-1:]
+    print("\nBEST:", best)
 
     print(len(selected))
 
@@ -46,7 +72,45 @@ def search(costs, profits):
     print(f"Time: {end_t-start_t} seconds")
 
 
-maxValue = 15
+def recursive_call_4(
+    costs,
+    profits,
+    capacity,
+    total=0,
+    path=[],
+    explored=set(),
+    selected=set(),
+    num_selection=10,
+):
+
+    explored.add(tuple(path))
+
+    if total == capacity:
+        selected.add(tuple(path))
+        return total
+    elif total > capacity:
+        return 0
+
+    for i, p in enumerate(profits):
+        new_path = path[:]
+        new_path.append(i)
+        new_path = sorted(new_path)
+        if tuple(new_path) in explored:
+            continue
+        else:
+            x = recursive_call_4(
+                costs,
+                profits,
+                capacity,
+                total + costs[i],
+                new_path,
+                explored,
+                selected,
+                num_selection,
+            )
+            if x > 0 and len(selected) > num_selection:
+                return x
+    return 0
 
 
 def recursive_call_3(
@@ -71,15 +135,15 @@ def recursive_call_3(
         # print(f"{path} {count}")
         return
 
-    for c in costs:
+    for i, c in enumerate(costs):
 
         new_path = path[:]
-        new_path.append(c)
+        new_path.append(i)
         new_path = sorted(new_path)
         if tuple(new_path) in explored:
             continue
         else:
-            print(f"OPEN {tuple(new_path)}")
+            print(f"{len(selected)} OPEN {tuple(new_path)}")
         recursive_call_3(
             costs,
             total_cost + c,
@@ -137,3 +201,4 @@ def load_file(file_name):
 if __name__ == "__main__":
     # load_file("dataFinance-sample.csv")
     pd_parse("dataFinance-sample.csv")
+    # pd_parse("dataFinance.csv")
