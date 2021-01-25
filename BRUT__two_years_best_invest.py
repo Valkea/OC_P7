@@ -3,14 +3,20 @@
 
 import pandas as pd
 import numpy as np
+import logging as lg
 
 import time
 
 from utils import ProgressBar
 progress_monitor = ProgressBar()
 
+lg.basicConfig(filename="algo.log", filemode="w", level=lg.DEBUG)
+lg.disable(lg.DEBUG)
+
 
 def pd_parse(file_name):
+    lg.info("START :: Parse data")
+
     col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
     data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
@@ -26,14 +32,18 @@ def pd_parse(file_name):
         index=df.index,
         columns=df.columns,
     )
-    print(df)
+
+    lg.debug(df)
 
     names = [x for x in df[col_names[0]]]
     costs = [x for x in df[col_names[1]]]
     profits = [x for x in df[col_names[2]]]
     capacity = 500
+    lg.info("CLOSE :: Parse data")
 
+    lg.info("START :: BRUT algo")
     search(costs, profits, names, capacity)
+    lg.info("CLOSE :: BRUT algo")
 
 
 def search(costs, profits, names, capacity):
@@ -49,12 +59,13 @@ def search(costs, profits, names, capacity):
     spend = recursive_call_4(
         costs, profits, capacity, explored=explored, selected=selected, num_selection=3
     )
+    progress_monitor.update(len(selected), len(selected), "Finished")
 
-    if spend == capacity:
-        print("\nMATCH FOUND")
-    else:
+    if spend != capacity:
         print("\nNO MATCH FOUND")
         return
+    else:
+        print("")
 
     sort_sequences = []
     for i, r in enumerate(selected):
@@ -211,6 +222,9 @@ def load_file(file_name):
 
 
 if __name__ == "__main__":
+    print("\n")
+    lg.info("RUN BRUT FORCE algorithm")
+
     # load_file("dataFinance-sample.csv")
     pd_parse("dataFinance-sample.csv")
     # pd_parse("dataFinance.csv")
