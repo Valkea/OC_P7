@@ -8,68 +8,76 @@ import time
 
 
 def pd_parse(file_name):
-    col_names = ["Cost(Euro/share)", "Profit(% post 2 years)"]
+    col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
     data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
     # print(df)
 
-    df["ratio"] = df[col_names[1]] / df[col_names[0]]
+    df["ratio"] = df[col_names[2]] / df[col_names[1]]
     df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
 
-    df = df.sort_values(by=["ratio", col_names[1], col_names[0]], ascending=False)
+    df = pd.DataFrame(
+        df.sort_values(
+            by=["ratio", col_names[2], col_names[1]], ascending=False
+        ).to_numpy(),
+        index=df.index,
+        columns=df.columns,
+    )
     print(df)
 
-    costs = [x for x in df[col_names[0]]]
-    profits = [x for x in df[col_names[1]]]
+    names = [x for x in df[col_names[0]]]
+    costs = [x for x in df[col_names[1]]]
+    profits = [x for x in df[col_names[2]]]
+    capacity = 500
 
-    search(costs, profits)
+    search(costs, profits, names, capacity)
 
 
-def search(costs, profits):
+def search(costs, profits, names, capacity):
 
     start_t = time.time()
 
     # costs = [5, 2, 1]  # TODO tmp
     # profits = [10, 2, 1]
 
-    capacity = 500
     selected = set()
     explored = set()
-    # recursive_call_3(costs, 0, depth, 0, selected=selected, explored=explored)
+
     spend = recursive_call_4(
         costs, profits, capacity, explored=explored, selected=selected, num_selection=3
     )
+
     if spend == capacity:
-        print("\nMATCH FOUND\n")
+        print("\nMATCH FOUND")
     else:
-        print("\nNO MATCH FOUND\n")
+        print("\nNO MATCH FOUND")
         return
 
-    # for r in explored:
-    #    print(f"EXP==>[{r}]")
-    # print(len(explored))
-
     sort_sequences = []
-    for r in selected:
-        cost = sum([costs[x] for x in r])
+    for i, r in enumerate(selected):
         profit = sum([profits[x] for x in r])
-        sort_sequences.append((profit, [costs[x] for x in r], cost))
-        print(f"SEL==>[{r}] {cost} {profit}")
+        sort_sequences.append((profit, r))
 
-    print()
+    sorted_sequences = sorted(sort_sequences)
+    for i, result in enumerate(sorted_sequences):
+        print(
+            "\n", f" TOP {len(sort_sequences)-i} ".center(50, "*"), sep="", end="\n\n"
+        )
+        profit = result[0]
+        shares = result[1]
 
-    sort_sequences = sorted(sort_sequences)
-    for r in sort_sequences:
-        print(f"SOR==>{r}")
+        results = {}
+        for share_index in shares:
+            results[names[share_index]] = (
+                shares.count(share_index),
+                costs[share_index],
+            )
 
-    best = sort_sequences[-1:]
-    print("\nBEST:", best)
-
-    print(len(selected))
+        print(f"The maximum profit is {profit} \n\nwith the following shares:\n")
+        print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
 
     end_t = time.time()
-
-    print(f"Time: {end_t-start_t} seconds")
+    print("\n", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="")
 
 
 def recursive_call_4(
@@ -108,7 +116,7 @@ def recursive_call_4(
                 selected,
                 num_selection,
             )
-            if x > 0 and len(selected) > num_selection:
+            if x > 0 and len(selected) >= num_selection:
                 return x
     return 0
 
