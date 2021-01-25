@@ -20,7 +20,6 @@ def pd_parse(file_name):
     col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
     data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
-    # print(df)
 
     df["ratio"] = df[col_names[2]] / df[col_names[1]]
     df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
@@ -56,7 +55,7 @@ def search(costs, profits, names, capacity):
     selected = set()
     explored = set()
 
-    spend = recursive_call_4(
+    spend = recursive_search(
         costs, profits, capacity, explored=explored, selected=selected, num_selection=3
     )
     progress_monitor.update(len(selected), len(selected), "Finished")
@@ -65,7 +64,7 @@ def search(costs, profits, names, capacity):
         print("\nNO MATCH FOUND")
         return
     else:
-        print("")
+        print("\n"*2)
 
     sort_sequences = []
     for i, r in enumerate(selected):
@@ -91,10 +90,10 @@ def search(costs, profits, names, capacity):
         print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
 
     end_t = time.time()
-    print("\n", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="")
+    print("", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n"*2)
 
 
-def recursive_call_4(
+def recursive_search(
     costs,
     profits,
     capacity,
@@ -121,7 +120,7 @@ def recursive_call_4(
         if tuple(new_path) in explored:
             continue
         else:
-            x = recursive_call_4(
+            x = recursive_search(
                 costs,
                 profits,
                 capacity,
@@ -136,95 +135,9 @@ def recursive_call_4(
     return 0
 
 
-def recursive_call_3(
-    costs,
-    total_cost,
-    max_depth,
-    current_depth,
-    path=[],
-    count=[0],
-    explored=set(),
-    selected=set(),
-):
-
-    explored.add(tuple(path))
-
-    if current_depth >= max_depth or total_cost > maxValue:
-        return
-
-    if total_cost == maxValue:
-        count[0] += 1
-        selected.add(tuple(path))
-        # print(f"{path} {count}")
-        return
-
-    for i, c in enumerate(costs):
-
-        new_path = path[:]
-        new_path.append(i)
-        new_path = sorted(new_path)
-        if tuple(new_path) in explored:
-            continue
-        else:
-            print(f"{len(selected)} OPEN {tuple(new_path)}")
-        recursive_call_3(
-            costs,
-            total_cost + c,
-            max_depth,
-            current_depth + 1,
-            new_path,
-            count,
-            explored,
-            selected,
-        )
-
-
-# 10 combinaisons avec A,B,C depth 3
-def recursive_call_2(
-    costs, max_depth, current_depth, path=[], count=[0], explored=set()
-):
-    if current_depth >= max_depth:
-        count[0] += 1
-        explored.add(tuple(sorted(path)))
-        print(f"{path} {count}")
-        return True
-
-    for c in costs:
-
-        new_path = path[:]
-        new_path.append(c)
-        new_path = sorted(new_path)
-        if tuple(new_path) in explored:
-            continue
-        else:
-            print(f"OPEN {tuple(new_path)}")
-        recursive_call_2(costs, max_depth, current_depth + 1, new_path, count, explored)
-
-
-# 27 combinaisons avec A,B,C depth 3
-def recursive_call(costs, max_depth, current_depth, path=[], count=[0]):
-    if current_depth >= max_depth:
-        count[0] += 1
-        print(f"{path} {count}")
-        return True
-
-    for c in costs:
-
-        new_path = path[:]
-        new_path.append(c)
-        recursive_call(costs, max_depth, current_depth + 1, new_path, count)
-
-
-def load_file(file_name):
-    with open(file_name, "r") as f:
-        for line in f:
-            print(line)
-
-
 if __name__ == "__main__":
     print("\n")
     lg.info("RUN BRUT FORCE algorithm")
 
-    # load_file("dataFinance-sample.csv")
     pd_parse("dataFinance-sample.csv")
     # pd_parse("dataFinance.csv")
