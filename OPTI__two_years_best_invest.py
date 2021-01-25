@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+from math import ceil
+
 import pandas as pd
+import numpy as np
 
 
 def pd_parse(file_name):
@@ -18,17 +21,78 @@ def pd_parse(file_name):
     names = [x for x in df[col_names[0]]]
     costs = [x for x in df[col_names[1]]]
     profits = [x for x in df[col_names[2]]]
+    capacity = 500
 
     names = ["Water", "Book", "Food", "Jacket", "Camera"]
     costs = [3, 1, 2, 2, 1]
     profits = [10, 3, 9, 5, 6]
+    capacity = 6
 
-    knapsack_dynamic_programming(costs, profits)
+    profit, share_indexes = knapsack_dynamic_programming(costs, profits, capacity)
+
+    print(
+        f"The maximum profit is: {profit} with the following shares: {[names[x] for x in share_indexes]}"
+    )
     # search(costs, profits)
 
 
-def knapsack_dynamic_programming(costs, profits):
-    pass
+def knapsack_dynamic_programming(costs, profits, capacity):
+
+    step = min(costs)
+    rows = len(costs)
+    columns = ceil(capacity / step)
+    print("STEP:", step, rows, columns)
+
+    grid_values = np.zeros([rows, columns])
+    # grid_shares = [[None]*columns]*rows
+    grid_shares = [[None for x in range(columns)] for y in range(rows)]
+    print("GRID:", grid_values)
+    print("GRID:", grid_shares)
+
+    for i in range(len(costs)):
+        for j in range(0, capacity, step):
+
+            print("COST COND:", j + 1, ">=", costs[i])
+
+            # if current sub-sack can hold at least one share
+            if j + 1 >= costs[i]:
+                print("OK")
+
+                prev_max = (
+                    grid_values[i - 1][j] if i > 0 else 0
+                )  # Get the previous max profit for this sub-capacity
+
+                current_value = profits[i]  # Get the current Share profit
+                filling_index = (
+                    j - costs[i]
+                )  # Search for the previous max of the remaining capacity
+
+                if filling_index > -1:
+                    current_max = current_value + grid_values[i - 1][filling_index]
+                else:
+                    current_max = current_value
+
+                print(prev_max, current_value, filling_index, current_max)
+                new_max = max(prev_max, current_max)
+                grid_values[i][j] = new_max
+
+                if new_max == prev_max:
+                    grid_shares[i][j] = grid_shares[i - 1][j]
+                else:
+                    grid_shares[i][j] = [i]
+                    if filling_index > -1:
+                        if grid_shares[i - 1][filling_index]:
+                            grid_shares[i][j].extend(grid_shares[i - 1][filling_index])
+
+                print(grid_values)
+                print(np.array(grid_shares))
+
+            else:
+                print("PAS OK")
+                grid_values[i][j] = grid_values[i - 1][j] if i > 0 else 0
+
+            print(i, j, costs[i])
+    return grid_values[i][j], grid_shares[i][j]
 
 
 # def search(costs, profits):
