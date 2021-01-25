@@ -37,27 +37,8 @@ def pd_parse(file_name):
 
     lg.info("CLOSE :: Parse data")
 
-    # names = ["Water", "Book", "Food", "Jacket", "Camera"]
-    # costs = [3, 1, 2, 2, 1]
-    # profits = [10, 3, 9, 5, 6]
-    # capacity = 6
-    # unbounded = False
-
-    # names = ["WA", "GT", "NG", "BM", "SPC"]
-    # costs = [.5, .5, 1, 2, .5]
-    # profits = [7, 6, 9, 9, 8]
-    # capacity = 2.0
-    # unbounded = False
-
-    # names = ["Guitar", "Stereo", "Laptop", "IPhone"]
-    # costs = [1, 4, 3, 1]
-    # profits = [1500, 3000, 2000, 2000]
-    # capacity = 4
-    # unbounded = True
-
-    start_t = time.time()
-
     lg.info("START :: OPTI algo")
+    start_t = time.time()
     profit, share_indexes = knapsack_dynamic_programming(
         costs, profits, capacity, names, unbounded
     )
@@ -82,8 +63,8 @@ def pd_parse(file_name):
 def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=False):
 
     step_size = min(costs)
-    if step_size < 1:  # TODO
-        step_size = 1
+    # if step_size < 1:  # TODO
+    #    step_size = 1
 
     rows = len(costs)
     columns = ceil(capacity / step_size)
