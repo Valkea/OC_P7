@@ -6,6 +6,9 @@ import numpy as np
 
 import time
 
+from utils import ProgressBar
+progress_monitor = ProgressBar()
+
 
 def pd_parse(file_name):
     col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
@@ -95,6 +98,7 @@ def recursive_call_4(
 
     if total == capacity:
         selected.add(tuple(path))
+        progress_monitor.update(len(selected), num_selection, "")
         return total
     elif total > capacity:
         return 0

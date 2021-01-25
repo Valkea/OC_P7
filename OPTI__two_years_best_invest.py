@@ -6,6 +6,10 @@ import time
 
 import pandas as pd
 import numpy as np
+# import psutils
+
+from utils import ProgressBar
+progress_monitor = ProgressBar()
 
 
 def pd_parse(file_name):
@@ -85,6 +89,8 @@ def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=F
     for i in range(rows):
         # print(f"row: {i} / {rows}")
 
+        progress_monitor.update(i, rows, names[i])
+
         ref_row = i - 1
         if unbounded:
             ref_row = i
@@ -141,10 +147,11 @@ def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=F
                 grid_shares[i][j] = grid_shares[i - 1][j] if i > 0 else None
 
             # print(i, j, costs[i])
+    progress_monitor.update(i + 1, rows, "Finished")
     return grid_values[i][j], grid_shares[i][j]
 
 
 if __name__ == "__main__":
     print("\n\n\n")
-    pd_parse("dataFinance-sample.csv")
-    # pd_parse("dataFinance.csv")
+    # pd_parse("dataFinance-sample.csv")
+    pd_parse("dataFinance.csv")
