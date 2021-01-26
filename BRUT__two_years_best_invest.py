@@ -8,6 +8,7 @@ import logging as lg
 import time
 
 from utils import ProgressBar
+
 progress_monitor = ProgressBar()
 
 lg.basicConfig(filename="algo.log", filemode="w", level=lg.DEBUG)
@@ -64,7 +65,7 @@ def search(costs, profits, names, capacity):
         print("\nNO MATCH FOUND")
         return
     else:
-        print("\n"*2)
+        print("\n" * 2)
 
     sort_sequences = []
     for i, r in enumerate(selected):
@@ -90,7 +91,9 @@ def search(costs, profits, names, capacity):
         print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
 
     end_t = time.time()
-    print("", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n"*2)
+    print(
+        "", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n" * 2
+    )
 
 
 def recursive_search(

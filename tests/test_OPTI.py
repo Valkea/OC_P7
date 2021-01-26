@@ -38,7 +38,7 @@ class TestOPTI:
 
     def test_bounded_02(self):
         names = ["WA", "GT", "NG", "BM", "SPC"]
-        costs = [.5, .5, 1, 2, .5]
+        costs = [0.5, 0.5, 1, 2, 0.5]
         profits = [7, 6, 9, 9, 8]
         capacity = 2
         unbounded = False
