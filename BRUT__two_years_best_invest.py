@@ -25,15 +25,19 @@ def main(file_name):
     data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
 
-    # --- CLEAN & IMPROVE data ---
+    # --- CLEAN data ---
 
-    df["ratio"] = df[col_names[2]] / df[col_names[1]]
     df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
 
+    # --- ADD computed data ---
+
+    # df["ratio"] = df[col_names[2]] / df[col_names[1]]
+    df["gain"] = df[col_names[1]] / 100.0 * df[col_names[2]]
+
+    # --- SORT data ---
+
     df = pd.DataFrame(
-        df.sort_values(
-            by=["ratio", col_names[2], col_names[1]], ascending=False
-        ).to_numpy(),
+        df.sort_values(by=[col_names[2], col_names[1]], ascending=False).to_numpy(),
         index=df.index,
         columns=df.columns,
     )
@@ -44,8 +48,9 @@ def main(file_name):
 
     names = [x for x in df[col_names[0]]]
     costs = [x for x in df[col_names[1]]]
-    profits = [x for x in df[col_names[2]]]
+    profits = [x for x in df["gain"]]
     capacity = 500
+    max_results = 1
 
     # --- CALL the algorithm ----
 
@@ -57,14 +62,14 @@ def main(file_name):
 
         sort_sequences = []
         for i, r in enumerate(selected):
-            profit = sum([profits[x] for x in r])
+            profit = int(sum([profits[x] * 100.0 for x in r])) / 100
             sort_sequences.append((profit, r))
 
-        sorted_sequences = sorted(sort_sequences)
+        sorted_sequences = sorted(sort_sequences, reverse=True)
         for i, result in enumerate(sorted_sequences):
             print(
                 "\n",
-                f" TOP {len(sort_sequences)-i} ".center(50, "*"),
+                f" TOP {i+1} ".center(50, "*"),
                 sep="",
                 end="\n\n",
             )
@@ -78,15 +83,21 @@ def main(file_name):
                     costs[share_index],
                 )
 
-            print(f"The maximum profit is {profit} \n\nwith the following shares:\n")
+            print(
+                f"The maximum profit is {profit:.2f}€ \n\nwith the following shares:\n"
+            )
             print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
+
+            total = sum([v[0] * v[1] for k, v in results.items()])
+            print(f"\nTotal: {total:.2f}€")
+
+            if i == max_results - 1:
+                break
 
     # --- CLOSE ---
 
     end_t = time.time()
-    print(
-        "", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n" * 2
-    )
+    print("", "*" * 50, f"\nTime: {end_t-start_t} seconds", sep="\n", end="\n" * 2)
 
 
 def search(costs, profits, names, capacity):
@@ -99,9 +110,14 @@ def search(costs, profits, names, capacity):
     explored = set()
 
     spend = recursive_search(
-        costs, profits, capacity, explored=explored, selected=selected, num_selection=3
+        costs,
+        profits,
+        capacity,
+        explored=explored,
+        selected=selected,
+        num_selection=15000,
     )
-    progress_monitor.update(len(selected), len(selected), "Finished")
+    progress_monitor.update(len(selected), len(selected), "Finished BRUT search")
 
     if spend != capacity:
         print("\nNO MATCH FOUND")
