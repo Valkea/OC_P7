@@ -15,12 +15,17 @@ lg.basicConfig(filename="algo.log", filemode="w", level=lg.DEBUG)
 lg.disable(lg.DEBUG)
 
 
-def pd_parse(file_name):
-    lg.info("START :: Parse data")
+def main(file_name):
+
+    start_t = time.time()
+
+    # --- LOAD data ---
 
     col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
     data = pd.read_csv(file_name)  # nrows=20
     df = pd.DataFrame(data, columns=col_names)
+
+    # --- CLEAN & IMPROVE data ---
 
     df["ratio"] = df[col_names[2]] / df[col_names[1]]
     df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
@@ -35,22 +40,59 @@ def pd_parse(file_name):
 
     lg.debug(df)
 
+    # --- PREPARE data for the algorithm ---
+
     names = [x for x in df[col_names[0]]]
     costs = [x for x in df[col_names[1]]]
     profits = [x for x in df[col_names[2]]]
     capacity = 500
-    lg.info("CLOSE :: Parse data")
 
-    lg.info("START :: BRUT algo")
-    search(costs, profits, names, capacity)
-    lg.info("CLOSE :: BRUT algo")
+    # --- CALL the algorithm ----
+
+    selected, explored = search(costs, profits, names, capacity)
+
+    # --- PARSE the returned values ---
+
+    if selected is not None:
+
+        sort_sequences = []
+        for i, r in enumerate(selected):
+            profit = sum([profits[x] for x in r])
+            sort_sequences.append((profit, r))
+
+        sorted_sequences = sorted(sort_sequences)
+        for i, result in enumerate(sorted_sequences):
+            print(
+                "\n",
+                f" TOP {len(sort_sequences)-i} ".center(50, "*"),
+                sep="",
+                end="\n\n",
+            )
+            profit = result[0]
+            shares = result[1]
+
+            results = {}
+            for share_index in shares:
+                results[names[share_index]] = (
+                    shares.count(share_index),
+                    costs[share_index],
+                )
+
+            print(f"The maximum profit is {profit} \n\nwith the following shares:\n")
+            print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
+
+    # --- CLOSE ---
+
+    end_t = time.time()
+    print(
+        "", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n" * 2
+    )
 
 
 def search(costs, profits, names, capacity):
+    """ TODO """
 
-    start_t = time.time()
-
-    # costs = [5, 2, 1]  # TODO tmp
+    # costs = [5, 2, 1]  # DEBUG data
     # profits = [10, 2, 1]
 
     selected = set()
@@ -63,37 +105,10 @@ def search(costs, profits, names, capacity):
 
     if spend != capacity:
         print("\nNO MATCH FOUND")
-        return
-    else:
-        print("\n" * 2)
+        return None, None
 
-    sort_sequences = []
-    for i, r in enumerate(selected):
-        profit = sum([profits[x] for x in r])
-        sort_sequences.append((profit, r))
-
-    sorted_sequences = sorted(sort_sequences)
-    for i, result in enumerate(sorted_sequences):
-        print(
-            "\n", f" TOP {len(sort_sequences)-i} ".center(50, "*"), sep="", end="\n\n"
-        )
-        profit = result[0]
-        shares = result[1]
-
-        results = {}
-        for share_index in shares:
-            results[names[share_index]] = (
-                shares.count(share_index),
-                costs[share_index],
-            )
-
-        print(f"The maximum profit is {profit} \n\nwith the following shares:\n")
-        print(*[f"- {k} [{v[1]}€] x {v[0]}" for k, v in results.items()], sep="\n")
-
-    end_t = time.time()
-    print(
-        "", "*" * 50, f"\nRunning time: {end_t-start_t} seconds", sep="\n", end="\n" * 2
-    )
+    print("\n" * 2)
+    return selected, explored
 
 
 def recursive_search(
@@ -106,6 +121,7 @@ def recursive_search(
     selected=set(),
     num_selection=10,
 ):
+    """ TODO """
 
     explored.add(tuple(path))
 
@@ -142,5 +158,5 @@ if __name__ == "__main__":
     print("\n")
     lg.info("RUN BRUT FORCE algorithm")
 
-    pd_parse("dataFinance-sample.csv")
-    # pd_parse("dataFinance.csv")
+    main("dataFinance-sample.csv")
+    # main("dataFinance.csv")
