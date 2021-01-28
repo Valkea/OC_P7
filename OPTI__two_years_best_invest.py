@@ -3,6 +3,8 @@
 
 import time
 import logging as lg
+import cProfile
+import pstats
 
 import pandas as pd
 import numpy as np
@@ -66,10 +68,13 @@ def main(file_name):
     profits = [x for x in df["gain"]]
 
     # --- CALL the algorithm ----
+    profile = cProfile.Profile()
+    profile.enable()
+ 
+    profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
-    profit, share_indexes = knapsack_dynamic_programming(
-        costs, profits, capacity, names, unbounded
-    )
+    profile.disable()
+    ps = pstats.Stats(profile)
 
     # --- PARSE the returned values ---
 
@@ -98,9 +103,18 @@ def main(file_name):
     end_t = time.time()
     print("", "*" * 50, f"\nTime: {end_t-start_t} seconds", sep="\n", end="\n" * 2)
 
+    ps.sort_stats('cumtime', 'ncalls')
+    ps.print_stats(10)
 
-def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=False):
-    """This function tries to find the best combination using the provided parameters
+
+def search(costs, profits, capacity, names=[], unbounded=False):
+    """This function search for the optimal combination of the provided data.
+
+    This implementation of the 'unlimited knapsack problem' tries to find
+    the combination that best maximize the combined profits.
+
+    In order to reach an O(n) temporal complexity, this version is implemented
+    using a dynamic programming approach.
 
     Parameters
     ----------
@@ -124,6 +138,7 @@ def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=F
     """
 
     step_size = 0.1
+    precision_scale = 100
 
     # --- INITIALIZE the grids / matrix ---
 
@@ -146,8 +161,6 @@ def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=F
         ref_row = i - 1
         if unbounded:
             ref_row = i
-
-        precision_scale = 100
 
         # for each sub-sack in the grid
         for j in range(columns):
@@ -216,6 +229,11 @@ def knapsack_dynamic_programming(costs, profits, capacity, names=[], unbounded=F
 if __name__ == "__main__":
     print("\n")
     lg.info("RUN OPTIMIZED algorithm")
+
+    # profile = cProfile.Profile()
+    # profile.runcall(main, "dataFinance-sample.csv")
+    # ps = pstats.Stats(profile)
+    # ps.print_stats()
 
     main("dataFinance-sample.csv")
     # main("dataFinance.csv")

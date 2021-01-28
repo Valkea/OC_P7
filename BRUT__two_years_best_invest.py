@@ -4,6 +4,8 @@
 import pandas as pd
 import numpy as np
 import logging as lg
+import cProfile
+import pstats
 
 import time
 
@@ -54,7 +56,13 @@ def main(file_name):
 
     # --- CALL the algorithm ----
 
-    selected, explored = search(costs, profits, names, capacity)
+    profile = cProfile.Profile()
+    profile.enable()
+
+    selected = search(costs, profits, names, capacity)
+
+    profile.disable()
+    ps = pstats.Stats(profile)
 
     # --- PARSE the returned values ---
 
@@ -99,6 +107,9 @@ def main(file_name):
     end_t = time.time()
     print("", "*" * 50, f"\nTime: {end_t-start_t} seconds", sep="\n", end="\n" * 2)
 
+    ps.sort_stats('cumtime', 'ncalls')
+    ps.print_stats()
+
 
 def search(costs, profits, names, capacity):
     """ TODO """
@@ -107,13 +118,13 @@ def search(costs, profits, names, capacity):
     # profits = [10, 2, 1]
 
     selected = set()
-    explored = set()
+    # explored = set()
 
     spend = recursive_search(
         costs,
         profits,
         capacity,
-        explored=explored,
+        # explored=explored,
         selected=selected,
         num_selection=15000,
     )
@@ -124,7 +135,7 @@ def search(costs, profits, names, capacity):
         return None, None
 
     print("\n" * 2)
-    return selected, explored
+    return selected  # , explored
 
 
 def recursive_search(
@@ -133,13 +144,13 @@ def recursive_search(
     capacity,
     total=0,
     path=[],
-    explored=set(),
+    # explored=set(),
     selected=set(),
     num_selection=10,
 ):
     """ TODO """
 
-    explored.add(tuple(path))
+    # explored.add(tuple(path))
 
     if total == capacity:
         selected.add(tuple(path))
@@ -151,22 +162,23 @@ def recursive_search(
     for i, p in enumerate(profits):
         new_path = path[:]
         new_path.append(i)
-        new_path = sorted(new_path)
-        if tuple(new_path) in explored:
-            continue
-        else:
-            x = recursive_search(
-                costs,
-                profits,
-                capacity,
-                total + costs[i],
-                new_path,
-                explored,
-                selected,
-                num_selection,
-            )
-            if x > 0 and len(selected) >= num_selection:
-                return x
+        # new_path = sorted(new_path)
+
+        # if tuple(new_path) in explored:
+        #     continue
+        # else:
+        x = recursive_search(
+            costs,
+            profits,
+            capacity,
+            total + costs[i],
+            new_path,
+            # explored,
+            selected,
+            num_selection,
+        )
+        if x > 0 and len(selected) >= num_selection:
+            return x
     return 0
 
 
