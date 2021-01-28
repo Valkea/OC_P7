@@ -8,16 +8,15 @@ import pstats
 
 import pandas as pd
 import numpy as np
-import psutil
 
-# import psutils
-
-from utils import ProgressBar
+from utils import ProgressBar, get_args
 
 progress_monitor = ProgressBar()
 
 lg.basicConfig(filename="algo.log", filemode="w", level=lg.DEBUG)
-# lg.disable(lg.DEBUG)
+lg.disable(lg.DEBUG)
+
+PRINT_STATS = False
 
 
 def main(file_name):
@@ -68,13 +67,15 @@ def main(file_name):
     profits = [x for x in df["gain"]]
 
     # --- CALL the algorithm ----
-    profile = cProfile.Profile()
-    profile.enable()
- 
+    if PRINT_STATS:
+        profile = cProfile.Profile()
+        profile.enable()
+
     profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
-    profile.disable()
-    ps = pstats.Stats(profile)
+    if PRINT_STATS:
+        profile.disable()
+        ps = pstats.Stats(profile)
 
     # --- PARSE the returned values ---
 
@@ -103,8 +104,9 @@ def main(file_name):
     end_t = time.time()
     print("", "*" * 50, f"\nTime: {end_t-start_t} seconds", sep="\n", end="\n" * 2)
 
-    ps.sort_stats('cumtime', 'ncalls')
-    ps.print_stats(10)
+    if PRINT_STATS:
+        ps.sort_stats("cumtime", "ncalls")
+        ps.print_stats()
 
 
 def search(costs, profits, capacity, names=[], unbounded=False):
@@ -151,7 +153,6 @@ def search(costs, profits, capacity, names=[], unbounded=False):
     grid_shares = [[None for x in range(columns)] for y in range(rows)]
 
     # --- RUN the algorithm ---
-    lg.info(f"PSUTIL BEFORE: {psutil.virtual_memory()}")
 
     # for each provided action
     for i in range(rows):
@@ -170,7 +171,7 @@ def search(costs, profits, capacity, names=[], unbounded=False):
 
             # if current sub-sack can hold at least one share
             if step_value >= costs[i]:
-                # lg.debug(f"STEP_VALUE({step_value}) >= COSTS[{i}]({costs[i]}) ==> profit:{profits[i]*precision_scale}")
+                # lg.debug(f"STEP_VALUE({step_value})>=COSTS[{i}]({costs[i]}) = profit:{profits[i]*precision_scale}")
 
                 # Get the previous max profit for this sub-capacity
                 prev_max = grid_values[i - 1][j] if i > 0 else 0
@@ -215,12 +216,9 @@ def search(costs, profits, capacity, names=[], unbounded=False):
                 grid_values[i][j] = grid_values[i - 1][j] if i > 0 else 0
                 grid_shares[i][j] = grid_shares[i - 1][j] if i > 0 else None
 
-            # lg.info(f"PSUTIL IN LOOP J: {psutil.virtual_memory()}")
-
     # --- RETURN values ---
     # for row in grid_values:
     #     lg.debug(f"GRID ROW VALUES: {row}")
-    lg.info(f"PSUTIL AFTER: {psutil.virtual_memory()}")
 
     progress_monitor.update(i + 1, rows, "Finished OPTIMIZED search")
     return grid_values[i][j] / precision_scale, grid_shares[i][j]
@@ -230,10 +228,9 @@ if __name__ == "__main__":
     print("\n")
     lg.info("RUN OPTIMIZED algorithm")
 
-    # profile = cProfile.Profile()
-    # profile.runcall(main, "dataFinance-sample.csv")
-    # ps = pstats.Stats(profile)
-    # ps.print_stats()
+    filepath, profile = get_args()
 
-    main("dataFinance-sample.csv")
-    # main("dataFinance.csv")
+    if profile:
+        PRINT_STATS = True
+
+    main(filepath)

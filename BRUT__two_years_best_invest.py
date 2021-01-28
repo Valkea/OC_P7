@@ -9,12 +9,14 @@ import pstats
 
 import time
 
-from utils import ProgressBar
+from utils import ProgressBar, get_args
 
 progress_monitor = ProgressBar()
 
 lg.basicConfig(filename="algo.log", filemode="w", level=lg.DEBUG)
 lg.disable(lg.DEBUG)
+
+PRINT_STATS = False
 
 
 def main(file_name):
@@ -56,13 +58,15 @@ def main(file_name):
 
     # --- CALL the algorithm ----
 
-    profile = cProfile.Profile()
-    profile.enable()
+    if PRINT_STATS:
+        profile = cProfile.Profile()
+        profile.enable()
 
     selected = search(costs, profits, names, capacity)
 
-    profile.disable()
-    ps = pstats.Stats(profile)
+    if PRINT_STATS:
+        profile.disable()
+        ps = pstats.Stats(profile)
 
     # --- PARSE the returned values ---
 
@@ -107,8 +111,9 @@ def main(file_name):
     end_t = time.time()
     print("", "*" * 50, f"\nTime: {end_t-start_t} seconds", sep="\n", end="\n" * 2)
 
-    ps.sort_stats('cumtime', 'ncalls')
-    ps.print_stats()
+    if PRINT_STATS:
+        ps.sort_stats("cumtime", "ncalls")
+        ps.print_stats()
 
 
 def search(costs, profits, names, capacity):
@@ -186,5 +191,9 @@ if __name__ == "__main__":
     print("\n")
     lg.info("RUN BRUT FORCE algorithm")
 
-    main("dataFinance-sample.csv")
-    # main("dataFinance.csv")
+    filepath, profile = get_args()
+
+    if profile:
+        PRINT_STATS = True
+
+    main(filepath)

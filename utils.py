@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+import argparse
 from os import get_terminal_size
 
 
@@ -66,3 +67,37 @@ class ProgressBar:
 
         fillchars = done_char * size
         return f"{fillchars.ljust(bar_size,todo_char)}"
+
+
+def get_args():
+    """Parse command arguments and return the appropriate parameters.
+
+    Returns
+    -------
+    str:
+        The path to the CSV file to parse.
+    bool:
+        Should display cProfile & pstats informations or not?
+    """
+
+    file_sample = "dataFinance-sample.csv"
+    file_full = "dataFinance.csv"
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-s",
+        "--sample",
+        action="store_true",
+        help=f"Use {file_sample} instead of {file_full}",
+    )
+    parser.add_argument(
+        "-p", "--profile", action="store_true", help="Display cProfile stats"
+    )
+
+    parseargs = parser.parse_args()
+
+    return (
+        (file_sample, parseargs.profile)
+        if parseargs.sample
+        else (file_full, parseargs.profile)
+    )
