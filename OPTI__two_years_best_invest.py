@@ -181,9 +181,7 @@ def search(costs, profits, capacity, names=[], unbounded=False):
                 current_max = current_value
 
                 unused = step_value - costs[i]
-                # lg.debug(f'UNUSED: {unused}')
                 filling_index = round(unused / step_size) - 1
-                # lg.debug(f'FILLING INDEX: {filling_index}')
                 current_max += (
                     grid_values[ref_row][filling_index] if filling_index > -1 else 0
                 )
