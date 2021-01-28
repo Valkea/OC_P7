@@ -26,9 +26,7 @@ class TestOPTI:
         capacity = 6
         unbounded = False
 
-        profit, share_indexes = search(
-            costs, profits, capacity, names, unbounded
-        )
+        profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
         assert profit == 25
         assert len(share_indexes) == 3
@@ -43,9 +41,7 @@ class TestOPTI:
         capacity = 2
         unbounded = False
 
-        profit, share_indexes = search(
-            costs, profits, capacity, names, unbounded
-        )
+        profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
         assert profit == 24
         assert len(share_indexes) == 3
@@ -60,9 +56,7 @@ class TestOPTI:
         capacity = 4
         unbounded = False
 
-        profit, share_indexes = search(
-            costs, profits, capacity, names, unbounded
-        )
+        profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
         assert profit == 4000
         assert len(share_indexes) == 2
@@ -76,9 +70,7 @@ class TestOPTI:
         capacity = 4
         unbounded = True
 
-        profit, share_indexes = search(
-            costs, profits, capacity, names, unbounded
-        )
+        profit, share_indexes = search(costs, profits, capacity, names, unbounded)
 
         assert profit == 8000
         assert len(share_indexes) == 4

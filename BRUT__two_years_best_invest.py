@@ -124,7 +124,7 @@ def main(file_name):
 
 
 def search(costs, profits, capacity):
-    """ Initialize the recursive search.
+    """Initialize the recursive search.
 
     See the recursive_search docstrings for more details.
 
