@@ -63,6 +63,30 @@ And if we want to see the profiling information, we can also add the -p or --pro
 >>> python3 OPTI__two_years_best_invest.py -sp
 ```
 
+## Display result example
+
+```bash
+◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼ 20/20 rows
+                                    Finished OPTIMIZED search
+
+
+********************* TOP 1 **********************
+
+The maximum profit is 134.05€ 
+
+with the following shares:
+
+- Share-9 [17€] x 29
+- Share-17 [5€] x 1
+- Share-16 [2€] x 1
+
+Total: 500.00€
+
+**************************************************
+
+Time: 0.33463215827941895 seconds
+```
+
 
 ## PEP8
 
