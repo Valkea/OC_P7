@@ -20,6 +20,13 @@ PRINT_STATS = False
 
 
 def main(file_name):
+    """This function parse the given file, format the data and feed the algorithm function .
+
+    Paramaters
+    ----------
+    file_name : str
+        The 'path+filename' to the file to load
+    """
 
     start_t = time.time()
 
@@ -62,7 +69,7 @@ def main(file_name):
         profile = cProfile.Profile()
         profile.enable()
 
-    selected = search(costs, profits, names, capacity)
+    selected = search(costs, profits, capacity)
 
     if PRINT_STATS:
         profile.disable()
@@ -116,8 +123,20 @@ def main(file_name):
         ps.print_stats()
 
 
-def search(costs, profits, names, capacity):
-    """ TODO """
+def search(costs, profits, capacity):
+    """ Initialize the recursive search.
+
+    See the recursive_search docstrings for more details.
+
+    Parameters
+    ----------
+    costs: list[Number]
+        A list containing the cost of the shares to select
+    profits: list[Number]
+        A list containing the profit of the shares to select
+    capacity: int
+        The target value to reach with the combined costs of the selected shares
+    """
 
     # costs = [5, 2, 1]  # DEBUG data
     # profits = [10, 2, 1]
@@ -147,13 +166,37 @@ def recursive_search(
     costs,
     profits,
     capacity,
+    # explored,
+    selected,
     total=0,
     path=[],
-    # explored=set(),
-    selected=set(),
     num_selection=10,
 ):
-    """ TODO """
+    """This function search for the optimal combination of the provided data.
+
+    This 'naive' implementation of the 'unlimited knapsack problem' tries to find
+    the combination that best maximize the combined profits using recursive calls.
+
+    But recursive stacks are usually limited to 10^3 or 10^4, so it will fail with large files.
+    Furthermore, the temporal complexity is O(n^n)...
+
+    Parameters
+    ----------
+    costs: list[Number]
+        A list containing the cost of the shares to select
+    profits: list[Number]
+        A list containing the profit of the shares to select
+    capacity: int
+        The target value to reach with the combined costs of the selected shares
+    selected: list
+        The list of the selected combinaisons
+    total: int
+        The total amount spent at this recursion step (default is 0)
+    path: list
+        The combined path visited at this recursion step (default is [])
+    num_selection: int
+        The number of combinaisons matching the capacity to collect before stopping the search
+    """
 
     # explored.add(tuple(path))
 
@@ -176,10 +219,10 @@ def recursive_search(
             costs,
             profits,
             capacity,
-            total + costs[i],
-            new_path,
             # explored,
             selected,
+            total + costs[i],
+            new_path,
             num_selection,
         )
         if x > 0 and len(selected) >= num_selection:
