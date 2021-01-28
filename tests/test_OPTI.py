@@ -8,7 +8,7 @@ The purpose of this module is to test the OPTIMIZED version of the algorithms
 
 """
 
-from OPTI__two_years_best_invest import knapsack_dynamic_programming
+from OPTI__two_years_best_invest import search
 
 
 class TestOPTI:
@@ -26,7 +26,7 @@ class TestOPTI:
         capacity = 6
         unbounded = False
 
-        profit, share_indexes = knapsack_dynamic_programming(
+        profit, share_indexes = search(
             costs, profits, capacity, names, unbounded
         )
 
@@ -43,7 +43,7 @@ class TestOPTI:
         capacity = 2
         unbounded = False
 
-        profit, share_indexes = knapsack_dynamic_programming(
+        profit, share_indexes = search(
             costs, profits, capacity, names, unbounded
         )
 
@@ -60,7 +60,7 @@ class TestOPTI:
         capacity = 4
         unbounded = False
 
-        profit, share_indexes = knapsack_dynamic_programming(
+        profit, share_indexes = search(
             costs, profits, capacity, names, unbounded
         )
 
@@ -76,7 +76,7 @@ class TestOPTI:
         capacity = 4
         unbounded = True
 
-        profit, share_indexes = knapsack_dynamic_programming(
+        profit, share_indexes = search(
             costs, profits, capacity, names, unbounded
         )
 
