@@ -36,7 +36,7 @@ let's create a virtual environment and install the required Python libraries
 >>> py -m pip install -r requirements.txt
 ```
 
-### Finally,
+## Running the scripts
 we can start the algorithms using the following commands
 
 ```bash
@@ -63,7 +63,7 @@ And if we want to see the profiling information, we can also add the -p or --pro
 >>> python3 OPTI__two_years_best_invest.py -sp
 ```
 
-## Display result example
+## Result's display example
 
 ```bash
 ◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼ 20/20 rows
