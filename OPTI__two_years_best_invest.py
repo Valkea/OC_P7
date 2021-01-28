@@ -119,13 +119,13 @@ def search(costs, profits, capacity, names=[], unbounded=False):
     Parameters
     ----------
     costs: list[Number]
-        A list containing the cost of the actions to select
+        A list containing the cost of the shares to select
     profits: list[Number]
-        A list containing the profit of the actions to select
+        A list containing the profit of the shares to select
     capacity: int
-        The target value to reach with the combined costs of the selected actions
+        The target value to reach with the combined costs of the selected shares
     names: list[str]
-        The names of the provided actions
+        The names of the provided shares for the progress bar
     unbounded: bool
         Define if the provided actions can be re-used (unbound) or not (bound)
 
