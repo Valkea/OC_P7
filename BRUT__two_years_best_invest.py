@@ -30,6 +30,9 @@ def main(file_name):
 
     start_t = time.time()
 
+    capacity = 500
+    max_results = 1
+
     # --- LOAD data ---
 
     col_names = ["Shares", "Cost(Euro/share)", "Profit(% post 2 years)"]
@@ -38,7 +41,15 @@ def main(file_name):
 
     # --- CLEAN data ---
 
-    df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
+    # df = df.replace([np.inf, -np.inf], np.nan).dropna(axis=0)
+    # remove invalid data
+    df = df.replace([np.inf, -np.inf, 0.0], np.nan).dropna(axis=0)
+
+    # remove SHARES whos value is greater than the capacity
+    df = df[df[col_names[1]] <= capacity]
+
+    # remove extra entries with the very same cost and profit
+    df.drop_duplicates(subset=[col_names[1], col_names[2]], keep="last", inplace=True)
 
     # --- ADD computed data ---
 
@@ -60,8 +71,6 @@ def main(file_name):
     names = [x for x in df[col_names[0]]]
     costs = [x for x in df[col_names[1]]]
     profits = [x for x in df["gain"]]
-    capacity = 500
-    max_results = 1
 
     # --- CALL the algorithm ----
 
